@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from app.memory.memory_manager import load_memory
 from app.memory.memory_manager import save_memory
 from fastapi import FastAPI
@@ -8,7 +9,13 @@ from app.utils.router import route_query
 app = FastAPI(
     title="Multi-Agent AI Career & Research Assistant"
 )
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():

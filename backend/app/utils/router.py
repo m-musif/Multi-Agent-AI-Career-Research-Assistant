@@ -6,10 +6,20 @@ from app.utils.llm import generate_response
 
 
 def route_query(message: str):
-
     lower_message = message.lower()
 
     if (
+        "review" in lower_message
+        or "improve answer" in lower_message
+        or "check answer" in lower_message
+        or "evaluate" in lower_message
+        or "feedback" in lower_message
+        or "critique" in lower_message
+    ):
+        agent = "reviewer_agent"
+        reply = reviewer_agent(message)
+
+    elif (
         "resume" in lower_message
         or "linkedin" in lower_message
         or "internship" in lower_message
@@ -22,6 +32,7 @@ def route_query(message: str):
         "research" in lower_message
         or "explain" in lower_message
         or "summarize" in lower_message
+        or "what is rag" in lower_message
     ):
         agent = "research_agent"
         reply = research_agent(message)
@@ -39,9 +50,7 @@ def route_query(message: str):
         agent = "general_agent"
         reply = generate_response(message)
 
-    reviewed_reply = reviewer_agent(reply)
-
     return {
         "agent": agent,
-        "message": reviewed_reply
+        "message": reply
     }
