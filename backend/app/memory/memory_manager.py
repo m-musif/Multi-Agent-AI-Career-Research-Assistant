@@ -1,7 +1,6 @@
 import json
 from pathlib import Path
 
-
 MEMORY_FILE = Path("app/memory/memory.json")
 
 
@@ -25,6 +24,9 @@ def save_memory(user_message: str, assistant_response: str):
             "assistant_response": assistant_response
         }
     )
+
+    # Keep only latest 20 memories
+    memory = memory[-20:]
 
     with open(MEMORY_FILE, "w") as file:
         json.dump(memory, file, indent=4)

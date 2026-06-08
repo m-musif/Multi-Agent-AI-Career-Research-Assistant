@@ -36,7 +36,6 @@ def get_memory():
     return load_memory()
 
 @app.post("/chat")
-@app.post("/chat")
 def chat(request: ChatRequest):
 
     result = route_query(request.message)

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { sendMessage, getMemory } from "./services/api";
 
 function App() {
@@ -7,8 +7,14 @@ function App() {
   const [memory, setMemory] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatHistory, loading]);
+
   async function handleSend() {
-    if (!message.trim()) return;
+    if (!message.trim() || loading) return;
 
     const userMessage = message;
     setMessage("");
@@ -25,6 +31,9 @@ function App() {
           agent: data.agent,
         },
       ]);
+
+      const updatedMemory = await getMemory();
+      setMemory(updatedMemory);
     } catch (error) {
       alert("Error sending message");
     } finally {
@@ -33,8 +42,16 @@ function App() {
   }
 
   async function handleLoadMemory() {
-    const data = await getMemory();
-    setMemory(data);
+    try {
+      const data = await getMemory();
+      setMemory(data);
+    } catch (error) {
+      alert("Error loading memory");
+    }
+  }
+
+  function handleClearChat() {
+    setChatHistory([]);
   }
 
   return (
@@ -52,11 +69,15 @@ function App() {
           <div className="lg:col-span-2 bg-slate-900 rounded-xl p-5 border border-slate-800">
             <h2 className="text-xl font-semibold mb-4">Chat</h2>
 
-            <div className="h-[420px] overflow-y-auto space-y-4 mb-4">
+            <div className="h-[380px] overflow-y-auto space-y-4 mb-4">
               {chatHistory.length === 0 && (
-                <p className="text-slate-500">
-                  Ask about internships, resume, LinkedIn, research, or your goals.
-                </p>
+                <div className="text-slate-500 space-y-1">
+                  <p>Try:</p>
+                  <p>• Create an AI internship roadmap</p>
+                  <p>• Review my resume</p>
+                  <p>• Explain Agentic AI</p>
+                  <p>• Remember my career goals</p>
+                </div>
               )}
 
               {chatHistory.map((chat, index) => (
@@ -73,28 +94,49 @@ function App() {
                         {chat.agent}
                       </span>
                     </div>
+
                     <p className="whitespace-pre-wrap text-slate-200">
                       {chat.assistant}
                     </p>
                   </div>
                 </div>
               ))}
+
+              {loading && (
+                <div className="bg-slate-800 p-3 rounded-lg text-slate-300">
+                  AI Thinking...
+                </div>
+              )}
+
+              <div ref={chatEndRef}></div>
             </div>
 
             <div className="flex gap-2">
               <input
                 className="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 outline-none"
-                placeholder="Ask your multi-agent assistant..."
+                placeholder="Ask about careers, research, memory, or AI..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleSend();
+                  }
+                }}
               />
+
+              <button
+                onClick={handleClearChat}
+                className="bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-semibold"
+              >
+                Clear
+              </button>
 
               <button
                 onClick={handleSend}
                 disabled={loading}
                 className="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg font-semibold disabled:opacity-50"
               >
-                {loading ? "Thinking..." : "Send"}
+                {loading ? "AI Thinking..." : "Send"}
               </button>
             </div>
           </div>
@@ -106,12 +148,14 @@ function App() {
               onClick={handleLoadMemory}
               className="w-full bg-emerald-600 hover:bg-emerald-700 px-4 py-3 rounded-lg font-semibold mb-4"
             >
-              Load Memory
+              View Memory
             </button>
 
-            <div className="h-[480px] overflow-y-auto space-y-3">
+            <div className="h-[440px] overflow-y-auto space-y-3">
               {memory.length === 0 && (
-                <p className="text-slate-500">No memory loaded yet.</p>
+                <p className="text-slate-500">
+                  Your saved memories will appear here.
+                </p>
               )}
 
               {memory.map((item, index) => (
@@ -128,6 +172,10 @@ function App() {
             </div>
           </div>
         </div>
+
+        <footer className="text-center text-slate-500 text-sm mt-8">
+          Built with React, FastAPI, Groq, and Multi-Agent Architecture
+        </footer>
       </div>
     </div>
   );

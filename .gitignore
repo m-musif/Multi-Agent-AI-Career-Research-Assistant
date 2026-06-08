@@ -10,10 +10,14 @@ backend/venv/
 .env
 backend/.env
 
+# Node Modules
+frontend/node_modules/
+
+# Runtime Memory Storage
+backend/app/memory/memory.json
+
 # IDE
 .vscode/
 
 # OS
 .DS_Store
-
-backend/app/memory/memory.json

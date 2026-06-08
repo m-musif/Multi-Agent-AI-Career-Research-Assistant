@@ -3,27 +3,20 @@ from app.memory.memory_manager import load_memory
 
 
 def personal_agent(message: str):
-
     memory = load_memory()
 
+    recent_memory = memory[-3:] if memory else []
+
     prompt = f"""
-You are a Personal Assistant AI.
+You are a helpful Personal Assistant AI.
 
-You have access to the user's recent memory:
+Use this recent memory only if it is relevant:
+{recent_memory}
 
-{memory}
-
-Use this memory only if it is relevant.
-
-Help with:
-- Goals
-- Productivity
-- Planning
-- Personal guidance
-- Remembering useful information
-
-User:
+User message:
 {message}
+
+Answer briefly and clearly.
 """
 
     return generate_response(prompt)
